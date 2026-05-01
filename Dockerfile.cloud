@@ -1,8 +1,8 @@
 # RunPod-optimized Dockerfile for bindermax Pipeline
-# Base: lukeford22/bindermax:master (30GB image with all dependencies)
+# Base: NVIDIA CUDA with Ubuntu 22.04
 # Purpose: Enable live code editing and custom AI loss functions on NVIDIA GPU instances
 
-FROM lukeford22/bindermax:master
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
 # Metadata
 LABEL maintainer="Luke <bindermax>"
@@ -13,9 +13,10 @@ LABEL version="1.0"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV WORKSPACE_DIR=/workspace
 
-# Install additional utilities for RunPod environment
+# Install system dependencies and utilities
 RUN apt-get update && apt-get install -y \
     openssh-server \
+    software-properties-common \
     tmux \
     screen \
     vim \
@@ -28,7 +29,24 @@ RUN apt-get update && apt-get install -y \
     ncdu \
     net-tools \
     iproute2 \
+    openjdk-17-jdk \
+    python3 \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Apptainer (containerization for ProteinDJ)
+RUN add-apt-repository -y ppa:apptainer/ppa \
+    && apt-get update \
+    && apt-get install -y apptainer \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Nextflow
+RUN curl -s https://get.nextflow.io | bash \
+    && mv nextflow /usr/local/bin/ \
+    && chmod +x /usr/local/bin/nextflow
+
+# Verify installations
+RUN apptainer --version && nextflow -version
 
 # Configure SSH server for RunPod
 RUN mkdir -p /var/run/sshd && \
