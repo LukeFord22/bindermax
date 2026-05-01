@@ -38,7 +38,7 @@ echo -e "${GREEN} Docker is installed and running${NC}"
 echo -e "\n${YELLOW}[2/6] Building Docker image...${NC}"
 echo "This may take 10-15 minutes on first build..."
 
-docker build -f Dockerfile.runpod -t ${IMAGE_NAME}:${IMAGE_TAG} .
+docker build -f Dockerfile.cloud -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
 echo -e "${GREEN} Image built successfully${NC}"
 
