@@ -1,0 +1,23 @@
+.nextflow/*
+.nextflow.log*
+.github
+.vscode
+pdj_results/
+models/
+test/
+
+# Bindsweeper
+bindsweeper.config
+results/
+bindsweeper/**/__pycache__/
+bindsweeper/**/*.py[cod]
+bindsweeper/**/*.egg-info
+bindsweeper/**/dist/
+bindsweeper/**/build/
+bindsweeper/.nextflow/**
+bindsweeper/quick_test_results/**
+bindsweeper/test_output/**
+bindsweeper/bindsweeper.config
+bindsweeper/quick_test_results/**
+bindsweeper/test_output/**
+bindsweeper/**/.nextflow/**

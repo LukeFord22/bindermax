@@ -1,0 +1,134 @@
+# RunPod-optimized Dockerfile for ProteinDJ Pipeline
+# Base: papenfusslab/proteindj:latest (30GB image with all dependencies)
+# Purpose: Enable live code editing and custom AI loss functions on NVIDIA GPU instances
+
+FROM papenfusslab/proteindj:latest
+
+# Metadata
+LABEL maintainer="Luke <custom-proteindj>"
+LABEL description="ProteinDJ containerized for RunPod with custom loss functions"
+LABEL version="1.0"
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV WORKSPACE_DIR=/workspace
+
+# Install additional utilities for RunPod environment
+RUN apt-get update && apt-get install -y \
+    openssh-server \
+    tmux \
+    screen \
+    vim \
+    nano \
+    rsync \
+    curl \
+    wget \
+    git \
+    htop \
+    ncdu \
+    net-tools \
+    iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configure SSH server for RunPod
+RUN mkdir -p /var/run/sshd && \
+    mkdir -p /root/.ssh && \
+    chmod 700 /root/.ssh
+
+# Configure SSH for port forwarding
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "GatewayPorts yes" >> /etc/ssh/sshd_config && \
+    echo "AllowTcpForwarding yes" >> /etc/ssh/sshd_config && \
+    echo "X11Forwarding yes" >> /etc/ssh/sshd_config && \
+    echo "PermitTunnel yes" >> /etc/ssh/sshd_config
+
+# Create workspace directory
+# The entire repo will be cloned here on startup
+RUN mkdir -p ${WORKSPACE_DIR} && \
+    chmod -R 777 ${WORKSPACE_DIR}
+
+# Create SSH key generation script for RunPod
+RUN echo '#!/bin/bash\n\
+if [ ! -f /root/.ssh/id_rsa ]; then\n\
+    ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" -C "runpod@proteindj"\n\
+    cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys\n\
+    chmod 600 /root/.ssh/authorized_keys\n\
+fi\n\
+' > /usr/local/bin/setup_ssh.sh && \
+chmod +x /usr/local/bin/setup_ssh.sh
+
+# Create entrypoint script for RunPod
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+echo "=== ProteinDJ RunPod Container Starting ==="\n\
+\n\
+# Setup SSH keys\n\
+/usr/local/bin/setup_ssh.sh\n\
+\n\
+# Start SSH service\n\
+service ssh start\n\
+echo "SSH service started on port 22"\n\
+\n\
+# Display SSH connection info\n\
+echo ""\n\
+echo "SSH Connection: ssh root@<runpod-ip> -p 22"\n\
+echo "Port Forwarding: ssh -L 8080:localhost:8080 root@<runpod-ip> -p 22"\n\
+echo ""\n\
+\n\
+# Clone or update your ProteinDJ fork (with custom logic)\n\
+PROTEINDJ_REPO_URL="${PROTEINDJ_REPO_URL}"\n\
+PROTEINDJ_BRANCH="${PROTEINDJ_BRANCH:-main}"\n\
+PROTEINDJ_DIR="${PROTEINDJ_DIR:-/workspace/proteindj}"\n\
+\n\
+if [ -z "$PROTEINDJ_REPO_URL" ]; then\n\
+    echo "ERROR: PROTEINDJ_REPO_URL environment variable not set!"\n\
+    echo "Please set it to your forked ProteinDJ repository."\n\
+    echo "Example: https://github.com/YOUR-USERNAME/proteindj-custom.git"\n\
+    exit 1\n\
+fi\n\
+\n\
+if [ -d "$PROTEINDJ_DIR/.git" ]; then\n\
+    echo "Updating ProteinDJ repository..."\n\
+    cd "$PROTEINDJ_DIR"\n\
+    git fetch origin\n\
+    git checkout "$PROTEINDJ_BRANCH"\n\
+    git pull origin "$PROTEINDJ_BRANCH"\n\
+else\n\
+    echo "Cloning ProteinDJ from: $PROTEINDJ_REPO_URL"\n\
+    git clone --branch "$PROTEINDJ_BRANCH" "$PROTEINDJ_REPO_URL" "$PROTEINDJ_DIR"\n\
+fi\n\
+\n\
+# Run post_start script if it exists in the repo\n\
+if [ -f "$PROTEINDJ_DIR/post_start.sh" ]; then\n\
+    echo "Running post_start.sh from repository..."\n\
+    cd "$PROTEINDJ_DIR"\n\
+    bash post_start.sh\n\
+fi\n\
+\n\
+# Change to workspace directory\n\
+cd ${WORKSPACE_DIR}\n\
+\n\
+echo "=== ProteinDJ Container Ready ==="\n\
+echo "Workspace: ${WORKSPACE_DIR}"\n\
+echo "ProteinDJ: ${PROTEINDJ_DIR}"\n\
+echo ""\n\
+\n\
+# Keep container running and allow interactive shell\n\
+exec "$@"\n\
+' > /entrypoint.sh && \
+chmod +x /entrypoint.sh
+
+# Set working directory
+WORKDIR ${WORKSPACE_DIR}
+
+# Expose ports
+# 8080: Nextflow/GUI monitoring
+# 22: SSH access
+EXPOSE 8080 22
+
+# Set default command
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/bin/bash"]

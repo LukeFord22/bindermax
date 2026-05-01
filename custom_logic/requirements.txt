@@ -1,0 +1,31 @@
+# Custom Loss Functions Requirements
+# Install with: pip install -r requirements.txt
+
+# Core dependencies for loss functions
+torch>=2.0.0              # Neural network framework, loss calculations
+numpy>=1.21.0             # Numerical operations, Henderson-Hasselbalch calculations
+
+# Protein structure analysis
+biopython>=1.79           # PDB parsing, SASA calculations, sequence handling
+scipy>=1.7.0              # Scientific computing, optimization, distance calculations
+
+# Structure analysis (if not in base image)
+# prody>=2.0              # Protein dynamics, structure alignment
+# mdtraj>=1.9.7           # Molecular dynamics trajectory analysis
+
+# Optional but recommended
+typing-extensions>=4.0.0  # Enhanced type hints for Python <3.10
+
+# For integration with AlphaFold2 (should be in base image)
+# alphafold dependencies are assumed to be present in papenfusslab/proteindj:latest
+# If not, you may need:
+# jax>=0.4.0
+# jaxlib>=0.4.0
+# dm-haiku>=0.0.9
+# dm-tree>=0.1.7
+
+# Development/testing (optional)
+# pytest>=7.0.0
+# pytest-cov>=3.0.0
+# black>=22.0.0
+# mypy>=0.950

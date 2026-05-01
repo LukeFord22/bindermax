@@ -1,0 +1,67 @@
+# Docker ignore file for efficient builds
+# Prevents unnecessary files from being sent to Docker daemon
+
+# Git
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Nextflow
+work/
+.nextflow/
+.nextflow.log*
+*.html
+*.svg
+timeline-*.html
+report-*.html
+dag-*.html
+
+# Results and data (don't include in image)
+results/
+pdj_results/
+run/
+outputs/
+
+# Large model files (download at runtime)
+models/
+*.pt
+*.pth
+*.ckpt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+docs/_build/
+*.md
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.log

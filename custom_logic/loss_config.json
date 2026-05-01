@@ -1,0 +1,23 @@
+{
+  "use_ph_sensitive": true,
+  "use_multistate": false,
+  "use_interface_energy": true,
+  "ph_value": 7.0,
+  "num_states": 1,
+  "custom_loss_weight": 0.3,
+  "ph_loss_config": {
+    "penalty_weight": 1.0,
+    "interface_boost": 2.0
+  },
+  "interface_energy_config": {
+    "hbond_weight": 1.0,
+    "hydrophobic_weight": 0.8,
+    "electrostatic_weight": 1.2,
+    "clash_penalty": 10.0
+  },
+  "multistate_config": {
+    "num_states": 2,
+    "state_weights": [1.0, 1.0],
+    "consistency_weight": 0.5
+  }
+}
