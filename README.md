@@ -47,16 +47,12 @@ This is a modified version of [ProteinDJ](https://github.com/PapenfussLab/protei
 
 ### 1. Cloud Deployment Infrastructure
 
-**Added by:** Luke (2026)
-
 - `Dockerfile.runpod` - RunPod-optimized container
 - `post_start.sh` - Automatic configuration on startup
 - `build_and_deploy.sh` - One-command deployment script
 - SSH server configuration with port forwarding
 
 ### 2. Custom AI Loss Functions
-
-**Added by:** Luke (2026)
 
 Located in `custom_logic/`:
 
