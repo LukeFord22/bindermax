@@ -1,13 +1,13 @@
 #!/bin/bash
-# Automated build and deployment script for ProteinDJ RunPod container
+# Automated build and deployment script for bindermax RunPod container
 
 set -e
 
 # Configuration - UPDATE THESE
-DOCKER_USERNAME="${DOCKER_USERNAME:-yourusername}"
-IMAGE_NAME="proteindj-runpod"
+DOCKER_USERNAME="${DOCKER_USERNAME:-lukeford22}"
+IMAGE_NAME="bindermax"
 IMAGE_TAG="latest"
-GITHUB_REPO_URL="${GITHUB_REPO_URL:-https://github.com/yourusername/proteindj-custom-logic.git}"
+GITHUB_REPO_URL="${GITHUB_REPO_URL:-https://github.com/lukeford22/bindermax.git}"
 
 # Color output
 RED='\033[0;31m'
@@ -16,7 +16,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}ProteinDJ RunPod Build & Deploy Script${NC}"
+echo -e "${GREEN}bindermax RunPod Build & Deploy Script${NC}"
 echo -e "${GREEN}========================================${NC}"
 
 # Step 1: Check prerequisites
@@ -32,7 +32,7 @@ if ! docker info &> /dev/null; then
     exit 1
 fi
 
-echo -e "${GREEN}✓ Docker is installed and running${NC}"
+echo -e "${GREEN} Docker is installed and running${NC}"
 
 # Step 2: Build Docker image
 echo -e "\n${YELLOW}[2/6] Building Docker image...${NC}"
@@ -40,7 +40,7 @@ echo "This may take 10-15 minutes on first build..."
 
 docker build -f Dockerfile.runpod -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
-echo -e "${GREEN}✓ Image built successfully${NC}"
+echo -e "${GREEN} Image built successfully${NC}"
 
 # Step 3: Tag image
 echo -e "\n${YELLOW}[3/6] Tagging image...${NC}"
@@ -48,7 +48,7 @@ echo -e "\n${YELLOW}[3/6] Tagging image...${NC}"
 FULL_IMAGE_NAME="${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
 docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}
 
-echo -e "${GREEN}✓ Tagged as ${FULL_IMAGE_NAME}${NC}"
+echo -e "${GREEN} Tagged as ${FULL_IMAGE_NAME}${NC}"
 
 # Step 4: Test image locally (optional)
 echo -e "\n${YELLOW}[4/6] Test image locally? (y/n)${NC}"
@@ -73,7 +73,7 @@ if [[ "$PUSH_IMAGE" == "y" ]]; then
     echo "Pushing image..."
     docker push ${FULL_IMAGE_NAME}
 
-    echo -e "${GREEN}✓ Image pushed successfully${NC}"
+    echo -e "${GREEN} Image pushed successfully${NC}"
 else
     echo "Skipping push. You can push later with:"
     echo "  docker push ${FULL_IMAGE_NAME}"

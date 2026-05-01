@@ -1,32 +1,32 @@
 #!/bin/bash
-# RunPod Post-Start Script for ProteinDJ
+# RunPod Post-Start Script for bindermax
 # This script runs automatically when the container launches
-# It assumes the entire ProteinDJ repo (with custom logic) is already cloned
-# by the entrypoint script at /workspace/proteindj
+# It assumes the entire bindermax repo (with custom logic) is already cloned
+# by the entrypoint script at /workspace/bindermax
 
 set -e
 
 echo "=========================================="
-echo "ProteinDJ Post-Start Configuration"
+echo "bindermax Post-Start Configuration"
 echo "=========================================="
 
 # Environment variables
 WORKSPACE_DIR="${WORKSPACE_DIR:-/workspace}"
-PROTEINDJ_DIR="${PROTEINDJ_DIR:-/workspace/proteindj}"
-CUSTOM_LOGIC_DIR="${PROTEINDJ_DIR}/custom_logic"
+BINDERMAX_DIR="${BINDERMAX_DIR:-/workspace/bindermax}"
+CUSTOM_LOGIC_DIR="${BINDERMAX_DIR}/custom_logic"
 AUTO_DOWNLOAD_MODELS="${AUTO_DOWNLOAD_MODELS:-false}"
 
 # Verify we're in the right place
-if [ ! -d "$PROTEINDJ_DIR" ] || [ ! -f "$PROTEINDJ_DIR/main.nf" ]; then
-    echo " Error: ProteinDJ not found at $PROTEINDJ_DIR"
-    echo "   This script expects ProteinDJ to be cloned by the entrypoint"
+if [ ! -d "$BINDERMAX_DIR" ] || [ ! -f "$BINDERMAX_DIR/main.nf" ]; then
+    echo " Error: bindermax not found at $BINDERMAX_DIR"
+    echo "   This script expects bindermax to be cloned by the entrypoint"
     exit 1
 fi
 
-cd "$PROTEINDJ_DIR"
+cd "$BINDERMAX_DIR"
 
 echo ""
-echo "✓ ProteinDJ repository: $PROTEINDJ_DIR"
+echo "✓ bindermax repository: $BINDERMAX_DIR"
 
 # [1/4] Set up Python environment
 echo ""
@@ -55,8 +55,8 @@ if [ -f "$MODEL_MARKER" ]; then
     echo "✓ Models already downloaded (marker file exists)"
 elif [ "$AUTO_DOWNLOAD_MODELS" == "true" ]; then
     echo "Downloading models (~11GB, takes 10-20 minutes)..."
-    if [ -f "$PROTEINDJ_DIR/scripts/download_models.sh" ]; then
-        bash "$PROTEINDJ_DIR/scripts/download_models.sh"
+    if [ -f "$BINDERMAX_DIR/scripts/download_models.sh" ]; then
+        bash "$BINDERMAX_DIR/scripts/download_models.sh"
         # Create marker file
         mkdir -p /workspace/models
         touch "$MODEL_MARKER"
@@ -137,7 +137,7 @@ cat > "$WORKSPACE_DIR/run_pipeline.sh" << 'EOF'
 #!/bin/bash
 # Quick pipeline runner
 
-cd /workspace/proteindj
+cd /workspace/bindermax
 
 if [ $# -eq 0 ]; then
     echo "Usage: ./run_pipeline.sh <profile> [additional nextflow args]"
@@ -154,7 +154,7 @@ fi
 PROFILE=$1
 shift
 
-echo "Starting ProteinDJ pipeline with profile: $PROFILE"
+echo "Starting bindermax pipeline with profile: $PROFILE"
 nextflow run main.nf -profile "$PROFILE" "$@"
 EOF
 chmod +x "$WORKSPACE_DIR/run_pipeline.sh"
@@ -169,7 +169,7 @@ echo "=========================================="
 echo ""
 echo "Directories:"
 echo "   Workspace:     $WORKSPACE_DIR"
-echo "   ProteinDJ:     $PROTEINDJ_DIR"
+echo "   bindermax:     $BINDERMAX_DIR"
 echo "   Custom Logic:  $CUSTOM_LOGIC_DIR"
 echo "   Models:        /workspace/models"
 echo "   Runs:          /workspace/runs"
@@ -181,16 +181,16 @@ echo ""
 echo "Next Steps:"
 
 if [ "$AUTO_DOWNLOAD_MODELS" != "true" ] && [ ! -f "$MODEL_MARKER" ]; then
-    echo "   Download models first: cd $PROTEINDJ_DIR && bash scripts/download_models.sh"
+    echo "   Download models first: cd $BINDERMAX_DIR && bash scripts/download_models.sh"
 fi
 
 echo "   - Edit custom losses: nano $CUSTOM_LOGIC_DIR/loss_config.json"
-echo "   - Configure pipeline: nano $PROTEINDJ_DIR/nextflow.config"
+echo "   - Configure pipeline: nano $BINDERMAX_DIR/nextflow.config"
 echo "   - Test custom losses: python $CUSTOM_LOGIC_DIR/integrate_losses.py --test"
 echo ""
 echo "Documentation:"
-echo "   - Setup Guide: cat $PROTEINDJ_DIR/SETUP_GUIDE.md"
-echo "   - Full Docs: cat $PROTEINDJ_DIR/RUNPOD_DEPLOYMENT.md"
+echo "   - Setup Guide: cat $BINDERMAX_DIR/SETUP_GUIDE.md"
+echo "   - Full Docs: cat $BINDERMAX_DIR/RUNPOD_DEPLOYMENT.md"
 echo ""
 echo "=========================================="
 
