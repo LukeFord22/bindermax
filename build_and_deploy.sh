@@ -57,7 +57,8 @@ read -r TEST_LOCALLY
 if [[ "$TEST_LOCALLY" == "y" ]]; then
     echo "Starting test container..."
     docker run --rm -it \
-        -e CUSTOM_REPO_URL="${GITHUB_REPO_URL}" \
+        -e BINDERMAX_REPO_URL="${GITHUB_REPO_URL}" \
+        -e AUTO_DOWNLOAD_MODELS="false" \
         -p 8080:8080 -p 2222:22 \
         ${FULL_IMAGE_NAME} /bin/bash
 fi

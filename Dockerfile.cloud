@@ -104,7 +104,6 @@ BINDERMAX_DIR="${BINDERMAX_DIR:-/workspace/bindermax}"\n\
 if [ -z "$BINDERMAX_REPO_URL" ]; then\n\
     echo "ERROR: BINDERMAX_REPO_URL environment variable not set!"\n\
     echo "Please set it to your forked bindermax repository."\n\
-    echo "Example: https://github.com/lukeford22/bindermax.git"\n\
     exit 1\n\
 fi\n\
 \n\
